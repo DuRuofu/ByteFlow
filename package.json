@@ -1,0 +1,17 @@
+{
+  "name": "byteflow",
+  "version": "1.0.0",
+  "description": "一个基于electron的串口助手软件",
+  "license": "ISC",
+  "author": "duruofu",
+  "type": "commonjs",
+  "main": "main.js",
+  "scripts": {
+    "start": "nodemon --exec electron .",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "devDependencies": {
+    "electron": "^34.0.0",
+    "nodemon": "^3.1.9"
+  }
+}
