@@ -1,9 +1,16 @@
 console.log('preload.js loaded')
-const { contextBridge } = require('electron')
+const { contextBridge, ipcRenderer } = require('electron')
 
-contextBridge.exposeInMainWorld('versions', {
-  node: () => process.versions.node,
-  chrome: () => process.versions.chrome,
-  electron: () => process.versions.electron
-  // 除函数之外，我们也可以暴露变量
+contextBridge.exposeInMainWorld('api', {
+	versions: {
+		node: () => process.versions.node,
+		chrome: () => process.versions.chrome,
+		electron: () => process.versions.electron,
+	},
+
+	saveFile: (data) => {
+		console.log('saveFile', data)
+		ipcRenderer.send('save-file', data)
+	}
 })
+
