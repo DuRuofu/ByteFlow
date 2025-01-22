@@ -10,10 +10,15 @@ function createWindow(): void {
     height: 670,
     show: false,
     autoHideMenuBar: true,
-    ...(process.platform === 'linux' ? { icon } : {}),
+    //...(process.platform === 'linux' ? { icon } : {}),
+    icon,
     webPreferences: {
       preload: join(__dirname, '../preload/index.js'),
-      sandbox: false
+      sandbox: false,
+      // 禁用同源策略，允许跨域请求
+      webSecurity: false,
+      // 禁止build环境使用DevTool
+      devTools: is.dev ? true : false
     }
   })
 

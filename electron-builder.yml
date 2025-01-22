@@ -12,7 +12,8 @@ files:
 asarUnpack:
   - resources/**
 win:
-  executableName: byteflow
+  executableName: electron-vite-vue-app
+  icon: resources/icon.png    
 nsis:
   artifactName: ${name}-${version}-setup.${ext}
   shortcutName: ${productName}

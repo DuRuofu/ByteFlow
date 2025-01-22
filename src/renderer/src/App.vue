@@ -1,4 +1,4 @@
-<script setup lang="ts">
+<!-- <script setup lang="ts">
 import Versions from './components/Versions.vue'
 
 const ipcHandle = () => window.electron.ipcRenderer.send('ping')
@@ -23,4 +23,14 @@ const ipcHandle = () => window.electron.ipcRenderer.send('ping')
     </div>
   </div>
   <Versions />
+</template> -->
+<script setup></script>
+
+<template>
+  <div class="App">
+    Electron-Vite-Vue-App
+    <el-button type="primary">Primary</el-button>
+  </div>
 </template>
+
+<style scoped></style>
