@@ -7,11 +7,30 @@
   "type": "commonjs",
   "main": "main.js",
   "scripts": {
-    "start": "nodemon --exec electron .",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "start": "chcp 65001 && nodemon --exec electron .",
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "electron-builder"
+  },
+  "build": {
+    "appId": "com.byteflow",
+    "win": {
+      "icon": "./favicon.ico",
+      "target": [
+        {
+          "target": "nsis",
+          "arch": ["x64"]
+        }
+      ]
+    },
+    "nsis": {
+      "oneClick": false,
+      "perMachine": true,
+      "allowToChangeInstallationDirectory": true
+    }
   },
   "devDependencies": {
     "electron": "^34.0.0",
-    "nodemon": "^3.1.9"
+    "nodemon": "^3.1.9",
+    "electron-builder": "^25.1.8"
   }
 }

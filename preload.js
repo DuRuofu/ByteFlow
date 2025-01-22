@@ -11,6 +11,10 @@ contextBridge.exposeInMainWorld('api', {
 	saveFile: (data) => {
 		console.log('saveFile', data)
 		ipcRenderer.send('save-file', data)
+	},
+
+	readFile: () => {
+		console.log('readFile')
+		return ipcRenderer.invoke('read-file')
 	}
 })
-

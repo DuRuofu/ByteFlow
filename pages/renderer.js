@@ -1,5 +1,7 @@
 const btn1 = document.getElementById('btn1')
 const btn2 = document.getElementById('btn2')
+const btn3 = document.getElementById('btn3')
+
 const input = document.getElementById('input')
 
 const information = document.getElementById('info')
@@ -18,3 +20,8 @@ btn2.addEventListener('click', () => {
 	api.saveFile(input.value)
 })
 
+// 为按钮3添加点击事件
+btn3.addEventListener('click', async () => {
+	let data = await api.readFile()
+	alert(data)
+})
