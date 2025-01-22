@@ -18,7 +18,7 @@ function createWindow(): BrowserWindow {
       // 禁用同源策略，允许跨域请求
       webSecurity: false,
       // 禁止build环境使用DevTool
-      devTools: is.dev ? true : false
+      //devTools: is.dev ? true : false
     }
   })
 
