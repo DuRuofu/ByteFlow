@@ -13,10 +13,29 @@
         <serial />
       </el-tab-pane>
       <el-tab-pane label="示波器" name="second">
+        <template #label>
+          <span class="tabs-label">
+            <el-icon><DataLine /></el-icon>
+            <span>示波器</span>
+          </span>
+        </template>
         <oscilloscope />
       </el-tab-pane>
-      <el-tab-pane label="数据引擎" name="third">Role</el-tab-pane>
+      <el-tab-pane label="数据引擎" name="third">
+        <template #label>
+          <span class="tabs-label">
+            <el-icon><Cpu /></el-icon>
+            <span>数据引擎</span>
+          </span>
+        </template></el-tab-pane
+      >
       <el-tab-pane label="关于" name="fifth">
+        <template #label>
+          <span class="tabs-label">
+            <el-icon><Link /></el-icon>
+            <span>关于</span>
+          </span>
+        </template>
         <about />
       </el-tab-pane>
     </el-tabs>
@@ -26,7 +45,7 @@
 <script lang="ts" setup>
 import { ref } from 'vue'
 import type { TabsPaneContext } from 'element-plus'
-import { Calendar, Setting } from '@element-plus/icons-vue'
+import { Calendar, Setting, DataLine, Cpu, Link } from '@element-plus/icons-vue'
 
 // 引入串口组件
 import serial from './views/serial/serial.vue'
