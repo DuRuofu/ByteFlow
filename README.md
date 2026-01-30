@@ -1,34 +1,80 @@
-# byteflow
+ByteFlow
 
-An Electron application with Vue and TypeScript
+**ByteFlow** 是一个基于 **Vue 3 + Web Serial API** 的网页串口助手，用于嵌入式设备的串口调试、数据收发与简单交互。
 
-## Recommended IDE Setup
+项目目标是：**轻量、直观、可扩展**，专注解决“浏览器里快速调串口”这个问题。
 
-- [VSCode](https://code.visualstudio.com/) + [ESLint](https://marketplace.visualstudio.com/items?itemName=dbaeumer.vscode-eslint) + [Prettier](https://marketplace.visualstudio.com/items?itemName=esbenp.prettier-vscode) + [Volar](https://marketplace.visualstudio.com/items?itemName=Vue.volar) + [TypeScript Vue Plugin (Volar)](https://marketplace.visualstudio.com/items?itemName=Vue.vscode-typescript-vue-plugin)
+------
 
-## Project Setup
+## 特性
 
-### Install
+- 浏览器直连串口（无需安装上位机）
+- 支持文本 / HEX 数据收发
+- 实时数据显示
+- 简洁工具型 UI
+- 纯前端实现，无后端依赖
+
+------
+
+##  功能
+
+### 串口管理
+
+- 串口选择与授权
+- 波特率配置
+- 打开 / 关闭串口
+- 连接状态显示
+
+### 数据接收（RX）
+
+- 实时接收串口数据
+- 文本 / HEX 显示模式
+- 支持清空接收区
+
+### 数据发送（TX）
+
+- 文本 / HEX 发送
+- 可选换行符（LF / CRLF）
+- 一键发送
+
+------
+
+## 🛠 技术栈
+
+- Vue 3
+- TypeScript
+- `<script setup>`
+- Web Serial API
+- Vite
+
+------
+
+##  启动项目
 
 ```bash
-$ pnpm install
+pnpm install
+pnpm dev
 ```
 
-### Development
+构建：
 
 ```bash
-$ pnpm dev
+pnpm build
 ```
 
-### Build
+------
 
-```bash
-# For windows
-$ pnpm build:win
+## 📦可选扩展（规划中）
 
-# For macOS
-$ pnpm build:mac
+- 定时发送
+- 快捷指令面板
+- 数据解析（JSON / CSV）
+- 接收数据导出
+- 多串口支持
 
-# For Linux
-$ pnpm build:linux
-```
+------
+
+## 📄 License
+
+MIT
+

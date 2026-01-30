@@ -1,0 +1,31 @@
+/* 引入 Element Plus 暗黑模式变量 */
+@import 'element-plus/theme-chalk/dark/css-vars.css';
+
+:root {
+  /* 默认（亮色）主题变量 */
+  --bf-bg-color: #f0f2f5;
+  --bf-sidebar-bg: #ffffff;
+  --bf-card-bg: #ffffff;
+  --bf-text-color: #303133;
+  --bf-text-secondary: #909399;
+  --bf-border-color: #dcdfe6;
+  --bf-code-bg: #f5f7fa;
+}
+
+html.dark {
+  /* 暗色主题变量 - 适配 Element Plus Dark */
+  --bf-bg-color: #141414; /* Element Plus page bg */
+  --bf-sidebar-bg: #1d1e1f; /* Element Plus overlay/card bg */
+  --bf-card-bg: #1d1e1f;
+  --bf-text-color: #E5EAF3;
+  --bf-text-secondary: #A3A6AD;
+  --bf-border-color: #4C4D4F;
+  --bf-code-bg: #262727;
+}
+
+/* 全局应用变量 */
+body {
+  background-color: var(--bf-bg-color);
+  color: var(--bf-text-color);
+  transition: background-color 0.3s, color 0.3s;
+}
