@@ -1,52 +1,62 @@
 <template>
   <div class="home-container">
-    <div class="sidebar">
-      <div class="logo-container">
-         <img src="/logo.png" alt="ByteFlow Logo" class="logo" />
-         <h1 class="app-title">ByteFlow</h1>
-      </div>
-      
-      <SerialConfig 
-        :is-connected="isConnected" 
-        :has-port="!!port"
-        @select-port="requestPort"
-        @open="handleOpen"
-        @close="closePort"
-        @signals-change="setSignals"
-      />
-      
-      <div class="settings-panel">
-          <ReceiveSettings 
-            v-model="receiveConfig" 
-            @clear="clearReceive" 
-            @save="saveReceive" 
-          />
-          <SendSettings v-model="sendConfig" />
-      </div>
-
-      <div class="about">
-        <el-button @click="toggleTheme" :icon="isDark ? 'Sunny' : 'Moon'" circle size="small" style="margin-bottom: 10px;" />
-        <p>Web Serial 调试助手</p>
-      </div>
+    <div class="header">
+        <div class="logo-container">
+            <img src="/logo.png" alt="ByteFlow Logo" class="logo" />
+            <h1 class="app-title">ByteFlow</h1>
+        </div>
+        <div class="header-actions">
+            <el-button @click="toggleTheme" :icon="isDark ? 'Sunny' : 'Moon'" circle size="small" />
+        </div>
     </div>
-    
-    <div class="main-content">
-      <div class="receive-area">
-        <SerialReceive 
-            ref="receiveRef"
-            :is-hex="receiveConfig.isHex"
-            :show-time="receiveConfig.showTime"
-            :auto-scroll="receiveConfig.autoScroll"
-            :show-tx="sendConfig.showTx"
-        />
-      </div>
-      <div class="send-area">
-        <SerialSend 
+
+    <div class="content-wrapper">
+        <div class="sidebar">
+        <div class="sidebar-section">
+            <SerialConfig 
             :is-connected="isConnected" 
-            :config="sendConfig"
-            @send="handleSend" 
-        />
-      </div>
+            :has-port="!!port"
+            @select-port="requestPort"
+            @open="handleOpen"
+            @close="closePort"
+            @signals-change="setSignals"
+            />
+        </div>
+        
+        <div class="sidebar-section">
+            <ReceiveSettings 
+                v-model="receiveConfig" 
+                @clear="clearReceive" 
+                @save="saveReceive" 
+            />
+        </div>
+
+        <div class="sidebar-section">
+            <SendSettings v-model="sendConfig" />
+        </div>
+        </div>
+        
+        <div class="main-content">
+        <div class="receive-area">
+            <SerialReceive 
+                ref="receiveRef"
+                :is-hex="receiveConfig.isHex"
+                :show-time="receiveConfig.showTime"
+                :auto-scroll="receiveConfig.autoScroll"
+                :show-tx="sendConfig.showTx"
+            />
+        </div>
+        <div class="send-area">
+            <SerialSend 
+                :is-connected="isConnected" 
+                :config="sendConfig"
+                :rx-count="rxCount"
+                :tx-count="txCount"
+                @send="handleSend" 
+                @reset-counts="resetCounts"
+            />
+        </div>
+        </div>
     </div>
   </div>
 </template>
@@ -62,7 +72,7 @@ import { useSerial, type SerialOptions } from '../composables/useSerial'
 import { useTheme } from '../composables/useTheme'
 import { ElMessage } from 'element-plus'
 
-const { port, isConnected, requestPort, openPort, closePort, send, onData, setSignals } = useSerial()
+const { port, isConnected, requestPort, openPort, closePort, send, onData, setSignals, rxCount, txCount, resetCounts } = useSerial()
 const { isDark, toggleTheme, initTheme } = useTheme()
 
 const receiveRef = ref<InstanceType<typeof SerialReceive> | null>(null)
@@ -127,6 +137,7 @@ onMounted(() => {
 <style scoped>
 .home-container {
   display: flex;
+  flex-direction: column;
   height: 100vh;
   padding: 10px;
   box-sizing: border-box;
@@ -136,46 +147,26 @@ onMounted(() => {
   transition: background-color 0.3s;
 }
 
+.content-wrapper {
+    display: flex;
+    flex: 1;
+    gap: 10px;
+    min-height: 0; /* Important for scrolling */
+}
+
 .sidebar {
   width: 280px;
   display: flex;
   flex-direction: column;
   gap: 10px;
+  height: 100%;
   overflow-y: auto;
 }
 
-.logo-container {
-    display: flex;
-    flex-direction: row;
-    align-items: center;
-    justify-content: center;
-    padding: 10px;
-    background-color: var(--bf-sidebar-bg);
-    border-radius: 4px;
-    box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.1);
-    flex-shrink: 0;
-    gap: 10px;
-}
-
-.logo {
-    width: 30px;
-    height: 30px;
-    object-fit: contain;
-}
-
-.app-title {
-    margin: 0;
-    font-size: 1rem;
-    font-weight: bold;
-    color: var(--bf-text-color);
-}
-
-.settings-panel {
+.sidebar-section {
+    /* Natural height */
     display: flex;
     flex-direction: column;
-    gap: 10px;
-    flex: 1; /* Take remaining space or just stack */
-    min-height: 0;
 }
 
 .main-content {
@@ -184,6 +175,36 @@ onMounted(() => {
   flex-direction: column;
   gap: 10px;
   min-width: 0; /* Prevent flex overflow */
+  height: 100%;
+}
+
+.header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 10px;
+    height: 40px; /* Approximate logo height + padding */
+    flex-shrink: 0;
+}
+
+.logo-container {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    margin-left: 50px; /* Shift to right, approx middle of 280px sidebar */
+}
+
+.logo {
+    width: 40px; /* Increased from 30px */
+    height: 40px; /* Increased from 30px */
+    object-fit: contain;
+}
+
+.app-title {
+    margin: 0;
+    font-size: 1.4rem; /* Slightly larger text to match logo */
+    font-weight: bold;
+    color: var(--bf-text-color);
 }
 
 .receive-area {
@@ -195,18 +216,10 @@ onMounted(() => {
 }
 
 .send-area {
-  height: 160px; /* Fixed height for send area */
-  flex-shrink: 0;
-}
-
-.about {
-  margin-top: auto;
-  text-align: center;
-  color: var(--bf-text-secondary);
-  font-size: 0.8rem;
-  padding: 10px;
+  height: 150px; /* Reduced from 200px */
+  min-height: 0;
   display: flex;
   flex-direction: column;
-  align-items: center;
+  flex-shrink: 0;
 }
 </style>

@@ -36,6 +36,8 @@ const logs = ref<LogEntry[]>([])
 const containerRef = ref<HTMLElement | null>(null)
 let nextId = 0
 const MAX_LOGS = 1000
+const PACKET_TIMEOUT = 50 // ms for Hex mode packet merging
+let lastRxTime = 0
 
 const displayLogs = computed(() => {
   return logs.value.filter(log => {
@@ -45,6 +47,75 @@ const displayLogs = computed(() => {
 })
 
 const addLog = (type: 'rx' | 'tx', data: Uint8Array) => {
+  const now = Date.now()
+
+  if (props.isHex) {
+    const lastLog = logs.value.length > 0 ? logs.value[logs.value.length - 1] : null
+    
+    // Check for packet merging: same type, within timeout, and (for RX) logic
+    // Usually only merge RX. TX is usually explicit.
+    if (type === 'rx' && 
+        lastLog && 
+        lastLog.type === 'rx' && 
+        (now - lastRxTime < PACKET_TIMEOUT)) {
+      
+      lastLog.data = mergeUint8Arrays(lastLog.data, data)
+      // Do not update lastLog.time to keep the timestamp of the first packet
+    } else {
+      pushLog(type, data)
+    }
+
+    if (type === 'rx') {
+      lastRxTime = now
+    }
+    
+    if (props.autoScroll) {
+        scrollToBottom()
+    }
+    return
+  }
+
+  let offset = 0
+  while (offset < data.length) {
+    const lastLog = logs.value.length > 0 ? logs.value[logs.value.length - 1] : null
+    const canAppend = lastLog && 
+                      lastLog.type === type && 
+                      lastLog.data.length > 0 && 
+                      lastLog.data[lastLog.data.length - 1] !== 0x0A // \n
+
+    let newlineIndex = -1
+    for (let i = offset; i < data.length; i++) {
+      if (data[i] === 0x0A) {
+        newlineIndex = i
+        break
+      }
+    }
+
+    if (newlineIndex !== -1) {
+      const chunk = data.slice(offset, newlineIndex + 1)
+      if (canAppend && lastLog) {
+        lastLog.data = mergeUint8Arrays(lastLog.data, chunk)
+      } else {
+        pushLog(type, chunk)
+      }
+      offset = newlineIndex + 1
+    } else {
+      const chunk = data.slice(offset)
+      if (canAppend && lastLog) {
+        lastLog.data = mergeUint8Arrays(lastLog.data, chunk)
+      } else {
+        pushLog(type, chunk)
+      }
+      offset = data.length
+    }
+  }
+
+  if (props.autoScroll) {
+    scrollToBottom()
+  }
+}
+
+const pushLog = (type: 'rx' | 'tx', data: Uint8Array) => {
   logs.value.push({
     id: nextId++,
     type,
@@ -55,10 +126,13 @@ const addLog = (type: 'rx' | 'tx', data: Uint8Array) => {
   if (logs.value.length > MAX_LOGS) {
     logs.value.shift()
   }
-  
-  if (props.autoScroll) {
-    scrollToBottom()
-  }
+}
+
+const mergeUint8Arrays = (a: Uint8Array, b: Uint8Array) => {
+  const c = new Uint8Array(a.length + b.length)
+  c.set(a)
+  c.set(b, a.length)
+  return c
 }
 
 const clear = () => {
@@ -104,13 +178,17 @@ defineExpose({
 <style scoped>
 .log-view {
   height: 100%;
+  box-sizing: border-box; /* Ensure padding doesn't increase height */
   overflow-y: auto;
-  background-color: #1e1e1e; /* Dark background like terminal */
-  color: #cccccc;
+  background-color: var(--bf-log-bg);
+  color: var(--bf-log-text);
   padding: 10px;
+  padding-bottom: 20px; /* Add extra space at bottom */
   font-family: 'Consolas', 'Monaco', monospace;
   font-size: 14px;
   border-radius: 4px;
+  border: 1px solid var(--bf-border-color);
+  transition: background-color 0.3s, color 0.3s, border-color 0.3s;
 }
 
 .log-item {
@@ -121,17 +199,15 @@ defineExpose({
 }
 
 .log-item.tx {
-  color: #e6db74; /* Yellowish for TX */
+  color: var(--bf-log-tx-color);
 }
 
 .log-item.rx {
-  color: #a6e22e; /* Greenish or White for RX */
-  /* Or white as per image */
-  color: #f8f8f2;
+  color: var(--bf-log-rx-color);
 }
 
 .timestamp {
-  color: #75715e;
+  color: var(--bf-log-time-color);
   margin-right: 8px;
   user-select: none;
 }
@@ -143,10 +219,10 @@ defineExpose({
 }
 
 .log-item.tx .direction-icon {
-  color: #e6db74;
+  color: var(--bf-log-tx-icon);
 }
 
 .log-item.rx .direction-icon {
-  color: #66d9ef; /* Blueish for RX icon */
+  color: var(--bf-log-rx-icon);
 }
 </style>

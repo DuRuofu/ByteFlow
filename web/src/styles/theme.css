@@ -10,6 +10,15 @@
   --bf-text-secondary: #909399;
   --bf-border-color: #dcdfe6;
   --bf-code-bg: #f5f7fa;
+  
+  /* 串口日志区域变量 (亮色) */
+  --bf-log-bg: #ffffff;
+  --bf-log-text: #24292e;
+  --bf-log-tx-color: #005cc5; /* Blue for TX in light mode */
+  --bf-log-rx-color: #24292e; /* Standard text for RX */
+  --bf-log-time-color: #6a737d;
+  --bf-log-rx-icon: #22863a; /* Green for RX icon */
+  --bf-log-tx-icon: #005cc5; /* Blue for TX icon */
 }
 
 html.dark {
@@ -21,6 +30,15 @@ html.dark {
   --bf-text-secondary: #A3A6AD;
   --bf-border-color: #4C4D4F;
   --bf-code-bg: #262727;
+
+  /* 串口日志区域变量 (暗色) */
+  --bf-log-bg: #1e1e1e;
+  --bf-log-text: #f8f8f2;
+  --bf-log-tx-color: #e6db74; /* Yellowish for TX */
+  --bf-log-rx-color: #f8f8f2;
+  --bf-log-time-color: #75715e;
+  --bf-log-rx-icon: #66d9ef; /* Cyan for RX icon */
+  --bf-log-tx-icon: #e6db74; /* Yellow for TX icon */
 }
 
 /* 全局应用变量 */

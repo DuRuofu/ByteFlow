@@ -12,6 +12,8 @@ export function useSerial() {
   const port = ref<SerialPort | null>(null)
   const isConnected = ref(false)
   const isReading = ref(false)
+  const rxCount = ref(0)
+  const txCount = ref(0)
   
   let reader: ReadableStreamDefaultReader<Uint8Array> | undefined
   let writer: WritableStreamDefaultWriter<Uint8Array> | undefined
@@ -20,6 +22,11 @@ export function useSerial() {
   
   const onData = (callback: (data: Uint8Array) => void) => {
     onDataCallbacks.push(callback)
+  }
+
+  const resetCounts = () => {
+      rxCount.value = 0
+      txCount.value = 0
   }
 
   const requestPort = async () => {
@@ -54,6 +61,7 @@ export function useSerial() {
           break
         }
         if (value) {
+            rxCount.value += value.byteLength
             onDataCallbacks.forEach(cb => cb(value))
         }
       }
@@ -126,6 +134,7 @@ export function useSerial() {
         writer = port.value.writable.getWriter()
         const dataToSend = typeof data === 'string' ? new TextEncoder().encode(data) : data
         await writer!.write(dataToSend)
+        txCount.value += dataToSend.byteLength
     } catch (error: any) {
       console.error('Send error:', error)
       ElMessage.error(`发送失败: ${error.message}`)
@@ -156,6 +165,9 @@ export function useSerial() {
     closePort,
     send,
     onData,
-    setSignals
+    setSignals,
+    rxCount,
+    txCount,
+    resetCounts
   }
 }

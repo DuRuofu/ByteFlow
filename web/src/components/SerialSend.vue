@@ -1,37 +1,47 @@
 <template>
-  <el-card class="serial-send" :body-style="{ padding: '10px', height: '100%', display: 'flex', flexDirection: 'column' }">
-    <template #header>
-      <div class="card-header">
-        <span>发送区</span>
-        <el-button type="primary" size="small" @click="handleManualSend" :disabled="!isConnected">发送</el-button>
+  <div class="serial-send-container">
+    <div class="send-main">
+        <div class="input-wrapper">
+            <el-input
+            v-model="inputContent"
+            type="textarea"
+            :placeholder="config.isHex ? '请输入HEX数据，如: AA BB CC' : '请输入要发送的内容'"
+            resize="none"
+            class="send-input"
+            @keydown.enter.prevent="handleEnter" 
+            />
+        </div>
+        <div class="send-action">
+            <el-button 
+                class="send-btn" 
+                type="primary" 
+                @click="handleManualSend" 
+                :disabled="!isConnected"
+            >
+                <el-icon :size="24"><Promotion /></el-icon>
+            </el-button>
+        </div>
+    </div>
+    
+    <div class="status-bar">
+      <div class="status-left">
+        <span>发送: {{ txCount }}</span>
+        <span>接收: {{ rxCount }}</span>
       </div>
-    </template>
-    
-    <div class="input-area">
-        <el-input
-        v-model="inputContent"
-        type="textarea"
-        :rows="4"
-        :placeholder="config.isHex ? '请输入HEX数据，如: AA BB CC' : '请输入要发送的内容'"
-        resize="none"
-        class="send-input"
-        @keydown.enter.prevent="handleEnter" 
-        />
+      <div class="status-right">
+         <span v-if="config.useTimer" class="timer-status">
+            <el-icon class="is-loading"><Loading /></el-icon> 定时发送中 ({{ config.timerInterval }}ms)
+        </span>
+        <el-link type="primary" :underline="false" @click="$emit('reset-counts')">复位计数</el-link>
+      </div>
     </div>
-    
-    <div class="footer-tip">
-      <span>Ctrl+Enter 发送</span>
-      <span v-if="config.useTimer" class="timer-status">
-          <el-icon class="is-loading"><Loading /></el-icon> 定时发送中 ({{ config.timerInterval }}ms)
-      </span>
-    </div>
-  </el-card>
+  </div>
 </template>
 
 <script setup lang="ts">
 import { ref, watch, onUnmounted } from 'vue'
 import { ElMessage } from 'element-plus'
-import { Loading } from '@element-plus/icons-vue'
+import { Loading, Promotion } from '@element-plus/icons-vue'
 
 interface SendConfig {
     isHex: boolean
@@ -44,10 +54,13 @@ interface SendConfig {
 const props = defineProps<{
   isConnected: boolean
   config: SendConfig
+  rxCount: number
+  txCount: number
 }>()
 
 const emit = defineEmits<{
   (e: 'send', data: string | Uint8Array): void
+  (e: 'reset-counts'): void
 }>()
 
 const inputContent = ref('')
@@ -94,12 +107,6 @@ const handleSend = () => {
     const raw = inputContent.value.replace(/\s+/g, '')
     if (!/^[0-9A-Fa-f]*$/.test(raw)) {
       ElMessage.error('HEX数据格式错误')
-      // If timer is running, maybe stop it or just ignore?
-      // Let's just ignore for now to avoid spamming errors
-      if (timer) {
-          // clearInterval(timer)
-          // props.config.useTimer = false // Can't mutate prop
-      }
       return
     }
     if (raw.length % 2 !== 0) {
@@ -111,8 +118,6 @@ const handleSend = () => {
       buffer[i / 2] = parseInt(raw.substring(i, i + 2), 16)
     }
     
-    // Append line ending to Hex?
-    // As per previous logic:
     let finalBuffer = buffer
     if (props.config.lineEnding) {
         const suffixBytes = new TextEncoder().encode(props.config.lineEnding.replace(/\\n/g, '\n').replace(/\\r/g, '\r'))
@@ -123,9 +128,6 @@ const handleSend = () => {
     
     emit('send', finalBuffer)
   } else {
-    // Text mode
-    // Handle escape characters in input? Standard text area doesn't process \n as escape.
-    // But lineEnding option does.
     const ending = props.config.lineEnding.replace(/\\n/g, '\n').replace(/\\r/g, '\r')
     emit('send', inputContent.value + ending)
   }
@@ -133,34 +135,74 @@ const handleSend = () => {
 </script>
 
 <style scoped>
-.serial-send {
+.serial-send-container {
+    display: flex;
+    flex-direction: column;
     height: 100%;
+    background-color: var(--bf-sidebar-bg); /* Use card background */
+    border-radius: 4px;
+    overflow: hidden;
 }
-.card-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
+
+.send-main {
+    flex: 1;
+    display: flex;
+    padding: 10px;
+    gap: 10px;
+    min-height: 0;
 }
-.input-area {
+
+.input-wrapper {
     flex: 1;
     display: flex;
     flex-direction: column;
 }
+
 .send-input {
-    flex: 1;
+    height: 100%;
 }
+
 .send-input :deep(.el-textarea__inner) {
     height: 100% !important;
     font-family: monospace;
+    resize: none;
 }
-.footer-tip {
-  margin-top: 5px;
-  font-size: 12px;
-  color: var(--bf-text-secondary);
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
+
+.send-action {
+    display: flex;
+    flex-direction: column;
+    width: 80px;
 }
+
+.send-btn {
+    height: 100%;
+    width: 100%;
+    font-size: 24px;
+}
+
+.status-bar {
+    height: 30px;
+    background-color: var(--bf-bg-color); /* Slightly different bg */
+    border-top: 1px solid var(--el-border-color-light);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 10px;
+    font-size: 12px;
+    color: var(--bf-text-secondary);
+}
+
+.status-left {
+    display: flex;
+    gap: 15px;
+}
+
+.status-right {
+    display: flex;
+    gap: 15px;
+    align-items: center;
+}
+
 .timer-status {
     color: var(--el-color-success);
     display: flex;
