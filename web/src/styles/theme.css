@@ -1,49 +1,240 @@
+/* ============================================
+   ByteFlow Theme CSS Variables
+   Industrial Developer Console Aesthetic
+   ============================================ */
+
 /* 引入 Element Plus 暗黑模式变量 */
 @import 'element-plus/theme-chalk/dark/css-vars.css';
 
+/* ============================================
+   Light Theme (Default)
+   ============================================ */
 :root {
-  /* 默认（亮色）主题变量 */
-  --bf-bg-color: #f0f2f5;
-  --bf-sidebar-bg: #ffffff;
-  --bf-card-bg: #ffffff;
-  --bf-text-color: #303133;
-  --bf-text-secondary: #909399;
-  --bf-border-color: #dcdfe6;
-  --bf-code-bg: #f5f7fa;
-  
-  /* 串口日志区域变量 (亮色) */
-  --bf-log-bg: #ffffff;
-  --bf-log-text: #24292e;
-  --bf-log-tx-color: #005cc5; /* Blue for TX in light mode */
-  --bf-log-rx-color: #24292e; /* Standard text for RX */
-  --bf-log-time-color: #6a737d;
-  --bf-log-rx-icon: #22863a; /* Green for RX icon */
-  --bf-log-tx-icon: #005cc5; /* Blue for TX icon */
+    /* Background Colors */
+    --bf-bg-primary: #FFFFFF;
+    --bf-bg-secondary: #F6F8FA;
+    --bf-bg-tertiary: #EAEEF2;
+
+    /* Text Colors */
+    --bf-text-primary: #1F2328;
+    --bf-text-secondary: #656D76;
+    --bf-text-tertiary: #8C959F;
+
+    /* Border Colors */
+    --bf-border: #D0D7DE;
+    --bf-border-light: #Eaecef;
+    --bf-border-active: #0969DA;
+
+    /* Accent Colors */
+    --bf-accent-cyan: #0969DA;
+    --bf-accent-cyan-light: rgba(9, 105, 218, 0.1);
+    --bf-accent-green: #1A7F37;
+    --bf-accent-green-light: rgba(26, 127, 55, 0.1);
+    --bf-accent-orange: #9A6700;
+    --bf-accent-orange-light: rgba(154, 103, 0, 0.1);
+    --bf-accent-red: #CF222E;
+    --bf-accent-red-light: rgba(207, 34, 46, 0.1);
+    --bf-accent-purple: #8250DF;
+
+    /* Typography */
+    --bf-font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    --bf-font-mono: 'JetBrains Mono', 'Fira Code', 'SF Mono', 'Consolas', 'Monaco', monospace;
+
+    --bf-font-xs: 11px;
+    --bf-font-sm: 12px;
+    --bf-font-base: 14px;
+    --bf-font-lg: 16px;
+    --bf-font-xl: 20px;
+    --bf-font-2xl: 24px;
+
+    --bf-font-normal: 400;
+    --bf-font-medium: 500;
+    --bf-font-semibold: 600;
+    --bf-font-bold: 700;
+
+    /* Spacing (8px grid) */
+    --bf-space-1: 4px;
+    --bf-space-2: 8px;
+    --bf-space-3: 12px;
+    --bf-space-4: 16px;
+    --bf-space-5: 24px;
+    --bf-space-6: 32px;
+    --bf-space-8: 48px;
+
+    /* Border Radius */
+    --bf-radius-sm: 4px;
+    --bf-radius-md: 6px;
+    --bf-radius-lg: 8px;
+    --bf-radius-xl: 12px;
+    --bf-radius-full: 9999px;
+
+    /* Shadows */
+    --bf-shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.05);
+    --bf-shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+    --bf-shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+
+    /* Transitions */
+    --bf-transition-fast: 150ms ease;
+    --bf-transition-base: 200ms ease;
+    --bf-transition-slow: 300ms ease;
+
+    /* Layout */
+    --bf-sidebar-width: 260px;
+    --bf-header-height: 48px;
+
+    /* Terminal/Log specific */
+    --bf-log-bg: #FFFFFF;
+    --bf-log-header-bg: #F6F8FA;
+    --bf-log-text: #1F2328;
+    --bf-log-tx: #0550AE;
+    --bf-log-rx: #116329;
+    --bf-log-timestamp: #656D76;
+    --bf-log-border: #D0D7DE;
+
+    /* Override Element Plus */
+    --el-bg-color: var(--bf-bg-secondary);
+    --el-bg-color-page: var(--bf-bg-primary);
+    --el-text-color-primary: var(--bf-text-primary);
+    --el-text-color-regular: var(--bf-text-secondary);
+    --el-border-color: var(--bf-border);
+    --el-border-color-light: var(--bf-border-light);
+    --el-fill-color-light: var(--bf-bg-tertiary);
 }
 
+/* ============================================
+   Dark Theme
+   ============================================ */
 html.dark {
-  /* 暗色主题变量 - 适配 Element Plus Dark */
-  --bf-bg-color: #141414; /* Element Plus page bg */
-  --bf-sidebar-bg: #1d1e1f; /* Element Plus overlay/card bg */
-  --bf-card-bg: #1d1e1f;
-  --bf-text-color: #E5EAF3;
-  --bf-text-secondary: #A3A6AD;
-  --bf-border-color: #4C4D4F;
-  --bf-code-bg: #262727;
+    /* Background Colors */
+    --bf-bg-primary: #0D1117;
+    --bf-bg-secondary: #161B22;
+    --bf-bg-tertiary: #21262D;
 
-  /* 串口日志区域变量 (暗色) */
-  --bf-log-bg: #1e1e1e;
-  --bf-log-text: #f8f8f2;
-  --bf-log-tx-color: #e6db74; /* Yellowish for TX */
-  --bf-log-rx-color: #f8f8f2;
-  --bf-log-time-color: #75715e;
-  --bf-log-rx-icon: #66d9ef; /* Cyan for RX icon */
-  --bf-log-tx-icon: #e6db74; /* Yellow for TX icon */
+    /* Text Colors */
+    --bf-text-primary: #E6EDF3;
+    --bf-text-secondary: #8B949E;
+    --bf-text-tertiary: #6E7681;
+
+    /* Border Colors */
+    --bf-border: #30363D;
+    --bf-border-light: #21262D;
+    --bf-border-active: #58A6FF;
+
+    /* Accent Colors */
+    --bf-accent-cyan: #58A6FF;
+    --bf-accent-cyan-light: rgba(88, 166, 255, 0.15);
+    --bf-accent-green: #3FB950;
+    --bf-accent-green-light: rgba(63, 185, 80, 0.15);
+    --bf-accent-orange: #D29922;
+    --bf-accent-orange-light: rgba(210, 153, 34, 0.15);
+    --bf-accent-red: #F85149;
+    --bf-accent-red-light: rgba(248, 81, 73, 0.15);
+    --bf-accent-purple: #A371F7;
+
+    /* Shadows (darker for dark mode) */
+    --bf-shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.3);
+    --bf-shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.4);
+    --bf-shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.5);
+
+    /* Terminal/Log specific - Terminal aesthetic */
+    --bf-log-bg: #0D1117;
+    --bf-log-header-bg: #161B22;
+    --bf-log-text: #E6EDF3;
+    --bf-log-tx: #79C0FF;
+    --bf-log-rx: #7EE787;
+    --bf-log-timestamp: #6E7681;
+    --bf-log-border: #30363D;
+
+    /* Override Element Plus Dark */
+    --el-bg-color: var(--bf-bg-secondary);
+    --el-bg-color-page: var(--bf-bg-primary);
+    --el-text-color-primary: var(--bf-text-primary);
+    --el-text-color-regular: var(--bf-text-secondary);
+    --el-border-color: var(--bf-border);
+    --el-border-color-light: var(--bf-border-light);
+    --el-fill-color-light: var(--bf-bg-tertiary);
 }
 
-/* 全局应用变量 */
+/* ============================================
+   Global Styles
+   ============================================ */
 body {
-  background-color: var(--bf-bg-color);
-  color: var(--bf-text-color);
-  transition: background-color 0.3s, color 0.3s;
+    background-color: var(--bf-bg-primary);
+    color: var(--bf-text-primary);
+    font-family: var(--bf-font-sans);
+    transition: background-color var(--bf-transition-slow),
+                color var(--bf-transition-slow);
+}
+
+/* Selection color */
+::selection {
+    background: var(--bf-accent-cyan-light);
+    color: var(--bf-text-primary);
+}
+
+/* Smooth scrolling */
+html {
+    scroll-behavior: smooth;
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+
+::-webkit-scrollbar-track {
+    background: var(--bf-bg-secondary);
+}
+
+::-webkit-scrollbar-thumb {
+    background: var(--bf-border);
+    border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: var(--bf-text-tertiary);
+}
+
+/* ============================================
+   Animations
+   ============================================ */
+@keyframes pulse {
+    0%, 100% {
+        opacity: 1;
+        transform: scale(1);
+    }
+    50% {
+        opacity: 0.6;
+        transform: scale(1.15);
+    }
+}
+
+@keyframes shimmer {
+    0% {
+        left: -100%;
+    }
+    100% {
+        left: 100%;
+    }
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(-4px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes rotate {
+    from {
+        transform: rotate(0deg);
+    }
+    to {
+        transform: rotate(360deg);
+    }
 }

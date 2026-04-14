@@ -1,15 +1,37 @@
 <template>
-  <div class="log-view" ref="containerRef">
-    <div class="log-list">
-      <div 
-        v-for="(log, index) in displayLogs" 
-        :key="log.id" 
-        class="log-item"
-        :class="log.type"
-      >
-        <span class="timestamp" v-if="showTime">[{{ formatTime(log.time) }}]</span>
-        <span class="direction-icon">{{ log.type === 'tx' ? '»' : '«' }}</span>
-        <span class="content">{{ formatContent(log.data) }}</span>
+  <div class="terminal-container">
+    <!-- Terminal Header -->
+    <div class="terminal-header">
+      <div class="terminal-dots">
+        <span class="terminal-dot red"></span>
+        <span class="terminal-dot yellow"></span>
+        <span class="terminal-dot green"></span>
+      </div>
+      <span class="terminal-title">Serial Monitor</span>
+      <div class="terminal-actions">
+        <slot name="actions"></slot>
+      </div>
+    </div>
+
+    <!-- Terminal Body -->
+    <div class="terminal-body" ref="containerRef">
+      <div class="log-list">
+        <div
+          v-for="(log, index) in displayLogs"
+          :key="log.id"
+          class="log-item"
+          :class="log.type"
+        >
+          <span class="timestamp" v-if="showTime">[{{ formatTime(log.time) }}]</span>
+          <span class="direction-icon">{{ log.type === 'tx' ? '»' : '«' }}</span>
+          <span class="content">{{ formatContent(log.data) }}</span>
+        </div>
+      </div>
+
+      <!-- Empty state -->
+      <div v-if="displayLogs.length === 0" class="empty-state">
+        <span class="empty-icon">▸</span>
+        <span class="empty-text">等待数据...</span>
       </div>
     </div>
   </div>
@@ -36,7 +58,7 @@ const logs = ref<LogEntry[]>([])
 const containerRef = ref<HTMLElement | null>(null)
 let nextId = 0
 const MAX_LOGS = 1000
-const PACKET_TIMEOUT = 50 // ms for Hex mode packet merging
+const PACKET_TIMEOUT = 50
 let lastRxTime = 0
 
 const displayLogs = computed(() => {
@@ -51,16 +73,13 @@ const addLog = (type: 'rx' | 'tx', data: Uint8Array) => {
 
   if (props.isHex) {
     const lastLog = logs.value.length > 0 ? logs.value[logs.value.length - 1] : null
-    
-    // Check for packet merging: same type, within timeout, and (for RX) logic
-    // Usually only merge RX. TX is usually explicit.
-    if (type === 'rx' && 
-        lastLog && 
-        lastLog.type === 'rx' && 
+
+    if (type === 'rx' &&
+        lastLog &&
+        lastLog.type === 'rx' &&
         (now - lastRxTime < PACKET_TIMEOUT)) {
-      
+
       lastLog.data = mergeUint8Arrays(lastLog.data, data)
-      // Do not update lastLog.time to keep the timestamp of the first packet
     } else {
       pushLog(type, data)
     }
@@ -68,7 +87,7 @@ const addLog = (type: 'rx' | 'tx', data: Uint8Array) => {
     if (type === 'rx') {
       lastRxTime = now
     }
-    
+
     if (props.autoScroll) {
         scrollToBottom()
     }
@@ -78,10 +97,10 @@ const addLog = (type: 'rx' | 'tx', data: Uint8Array) => {
   let offset = 0
   while (offset < data.length) {
     const lastLog = logs.value.length > 0 ? logs.value[logs.value.length - 1] : null
-    const canAppend = lastLog && 
-                      lastLog.type === type && 
-                      lastLog.data.length > 0 && 
-                      lastLog.data[lastLog.data.length - 1] !== 0x0A // \n
+    const canAppend = lastLog &&
+                      lastLog.type === type &&
+                      lastLog.data.length > 0 &&
+                      lastLog.data[lastLog.data.length - 1] !== 0x0A
 
     let newlineIndex = -1
     for (let i = offset; i < data.length; i++) {
@@ -122,7 +141,7 @@ const pushLog = (type: 'rx' | 'tx', data: Uint8Array) => {
     data,
     time: Date.now()
   })
-  
+
   if (logs.value.length > MAX_LOGS) {
     logs.value.shift()
   }
@@ -156,11 +175,6 @@ const formatContent = (data: Uint8Array) => {
   if (props.isHex) {
     return Array.from(data).map(b => b.toString(16).padStart(2, '0').toUpperCase()).join(' ')
   } else {
-    // Replace non-printable characters with dot or escape code?
-    // For now, use TextDecoder, but it might hide control chars.
-    // Let's use TextDecoder but maybe escape newlines if they are single logs?
-    // Actually, reference image shows multiline JSON.
-    // So we should preserve newlines.
     try {
         return new TextDecoder().decode(data)
     } catch (e) {
@@ -176,53 +190,177 @@ defineExpose({
 </script>
 
 <style scoped>
-.log-view {
+/* ============================================
+   Terminal Container
+   ============================================ */
+.terminal-container {
+  display: flex;
+  flex-direction: column;
   height: 100%;
-  box-sizing: border-box; /* Ensure padding doesn't increase height */
+  background: var(--bf-log-bg);
+  transition: background-color var(--bf-transition-slow);
+}
+
+/* ============================================
+   Terminal Header
+   ============================================ */
+.terminal-header {
+  display: flex;
+  align-items: center;
+  gap: var(--bf-space-3);
+  padding: var(--bf-space-2) var(--bf-space-3);
+  background: var(--bf-log-header-bg);
+  border-bottom: 1px solid var(--bf-border);
+  flex-shrink: 0;
+}
+
+.terminal-dots {
+  display: flex;
+  gap: 6px;
+}
+
+.terminal-dot {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.terminal-dot.red {
+  background: #FF5F56;
+}
+
+.terminal-dot.yellow {
+  background: #FFBD2E;
+}
+
+.terminal-dot.green {
+  background: #27CA40;
+}
+
+.terminal-title {
+  font-family: var(--bf-font-mono);
+  font-size: var(--bf-font-xs);
+  color: var(--bf-text-tertiary);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  font-weight: var(--bf-font-medium);
+}
+
+.terminal-actions {
+  margin-left: auto;
+}
+
+/* ============================================
+   Terminal Body
+   ============================================ */
+.terminal-body {
+  flex: 1;
   overflow-y: auto;
-  background-color: var(--bf-log-bg);
-  color: var(--bf-log-text);
-  padding: 10px;
-  padding-bottom: 20px; /* Add extra space at bottom */
-  font-family: 'Consolas', 'Monaco', monospace;
-  font-size: 14px;
-  border-radius: 4px;
-  border: 1px solid var(--bf-border-color);
-  transition: background-color 0.3s, color 0.3s, border-color 0.3s;
+  padding: var(--bf-space-3);
+  font-family: var(--bf-font-mono);
+  font-size: var(--bf-font-base);
+  line-height: 1.6;
+}
+
+/* ============================================
+   Log Items
+   ============================================ */
+.log-list {
+  display: flex;
+  flex-direction: column;
 }
 
 .log-item {
-  margin-bottom: 2px;
+  display: flex;
+  gap: var(--bf-space-2);
+  padding: 2px 0;
   word-break: break-all;
   white-space: pre-wrap;
-  line-height: 1.4;
+  transition: background-color var(--bf-transition-fast);
+  border-radius: var(--bf-radius-sm);
+  margin: 0 -4px;
+  padding: 2px 4px;
+}
+
+.log-item:hover {
+  background: rgba(255, 255, 255, 0.03);
+}
+
+html:not(.dark) .log-item:hover {
+  background: rgba(0, 0, 0, 0.03);
 }
 
 .log-item.tx {
-  color: var(--bf-log-tx-color);
+  color: var(--bf-log-tx);
 }
 
 .log-item.rx {
-  color: var(--bf-log-rx-color);
+  color: var(--bf-log-rx);
 }
 
 .timestamp {
-  color: var(--bf-log-time-color);
-  margin-right: 8px;
+  color: var(--bf-log-timestamp);
+  flex-shrink: 0;
   user-select: none;
+  font-size: var(--bf-font-xs);
 }
 
 .direction-icon {
-  margin-right: 8px;
+  flex-shrink: 0;
+  width: 14px;
+  text-align: center;
   font-weight: bold;
   user-select: none;
 }
 
-.log-item.tx .direction-icon {
-  color: var(--bf-log-tx-icon);
+html.dark .log-item.tx .direction-icon {
+  color: var(--bf-accent-cyan);
 }
 
-.log-item.rx .direction-icon {
-  color: var(--bf-log-rx-icon);
+html.dark .log-item.rx .direction-icon {
+  color: var(--bf-accent-green);
+}
+
+html:not(.dark) .log-item.tx .direction-icon {
+  color: var(--bf-log-tx);
+}
+
+html:not(.dark) .log-item.rx .direction-icon {
+  color: var(--bf-log-rx);
+}
+
+.content {
+  flex: 1;
+}
+
+/* HEX mode spacing */
+.log-item .content.hex {
+  letter-spacing: 1px;
+}
+
+/* ============================================
+   Empty State
+   ============================================ */
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  min-height: 120px;
+  color: var(--bf-text-tertiary);
+  gap: var(--bf-space-2);
+}
+
+.empty-icon {
+  font-size: 24px;
+  opacity: 0.5;
+  animation: pulse 2s ease-in-out infinite;
+}
+
+.empty-text {
+  font-size: var(--bf-font-sm);
+  font-family: var(--bf-font-mono);
 }
 </style>

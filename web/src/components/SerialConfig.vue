@@ -3,68 +3,71 @@
     <template #header>
       <div class="card-header">
         <span>连接设置</span>
+        <el-icon class="header-icon"><Connection /></el-icon>
       </div>
     </template>
     <el-form label-width="60px" size="small" class="compact-form">
       <el-form-item label="端口">
-         <el-button 
-           type="primary" 
-           @click="$emit('select-port')" 
-           :disabled="isConnected" 
+         <el-button
+           type="default"
+           @click="$emit('select-port')"
+           :disabled="isConnected"
            style="width: 100%"
-           :icon="hasPort ? 'Check' : 'Link'"
+           class="port-btn"
            size="small"
          >
+           <el-icon v-if="hasPort" class="icon-check"><Check /></el-icon>
+           <el-icon v-else class="icon-link"><Link /></el-icon>
            {{ hasPort ? '切换串口' : '选择串口' }}
          </el-button>
       </el-form-item>
-      
+
       <el-form-item label="波特率">
-        <el-select v-model="options.baudRate" :disabled="isConnected" filterable allow-create size="small">
+        <el-select v-model="options.baudRate" :disabled="isConnected" filterable allow-create size="small" class="bf-select">
           <el-option v-for="rate in baudRates" :key="rate" :label="rate" :value="rate" />
         </el-select>
       </el-form-item>
-      
+
       <el-form-item label="数据位">
-        <el-select v-model="options.dataBits" :disabled="isConnected" size="small">
+        <el-select v-model="options.dataBits" :disabled="isConnected" size="small" class="bf-select">
           <el-option :value="7" label="7" />
           <el-option :value="8" label="8" />
         </el-select>
       </el-form-item>
 
       <el-form-item label="停止位">
-        <el-select v-model="options.stopBits" :disabled="isConnected" size="small">
+        <el-select v-model="options.stopBits" :disabled="isConnected" size="small" class="bf-select">
           <el-option :value="1" label="1" />
           <el-option :value="2" label="2" />
         </el-select>
       </el-form-item>
 
       <el-form-item label="校验位">
-        <el-select v-model="options.parity" :disabled="isConnected" size="small">
+        <el-select v-model="options.parity" :disabled="isConnected" size="small" class="bf-select">
           <el-option value="none" label="None" />
           <el-option value="even" label="Even" />
           <el-option value="odd" label="Odd" />
         </el-select>
       </el-form-item>
-      
-      <el-form-item label-width="0" style="margin-bottom: 0;">
-        <el-button 
-          type="success" 
-          @click="handleOpen" 
-          :disabled="isConnected || !hasPort" 
+
+      <el-form-item label-width="0" style="margin-bottom: 0; margin-top: 4px;">
+        <el-button
+          @click="handleOpen"
+          :disabled="isConnected || !hasPort"
           v-if="!isConnected"
-          style="width: 100%; height: 40px; font-size: 16px;"
-          icon="VideoPlay"
+          class="btn-connect"
+          size="large"
         >
+          <el-icon class="btn-icon"><VideoPlay /></el-icon>
           打开串口
         </el-button>
-        <el-button 
-          type="danger" 
-          @click="$emit('close')" 
+        <el-button
+          @click="$emit('close')"
           v-else
-          style="width: 100%; height: 40px; font-size: 16px;"
-          icon="SwitchButton"
+          class="btn-disconnect"
+          size="large"
         >
+          <el-icon class="btn-icon"><SwitchButton /></el-icon>
           关闭串口
         </el-button>
       </el-form-item>
@@ -73,14 +76,11 @@
 </template>
 
 <script setup lang="ts">
-import { reactive, watch } from 'vue'
+import { reactive } from 'vue'
+import { Connection, Check, Link, VideoPlay, SwitchButton } from '@element-plus/icons-vue'
 import type { SerialOptions } from '../composables/useSerial'
 
-// Extended options for UI
-interface UIOptions extends SerialOptions {
-    // DTR/RTS removed from UI but might be needed for internal logic if we kept them
-    // But user asked to remove them from UI
-}
+interface UIOptions extends SerialOptions {}
 
 const props = defineProps<{
   isConnected: boolean
@@ -111,19 +111,150 @@ const handleOpen = () => {
       parity: options.parity
   })
 }
-
-// Removed updateSignals as UI controls are gone
 </script>
 
 <style scoped>
 .card-header {
-  font-weight: bold;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-weight: var(--bf-font-semibold);
+  font-size: var(--bf-font-sm);
+  color: var(--bf-text-primary);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.header-icon {
+  color: var(--bf-accent-cyan);
   font-size: 14px;
 }
+
 .serial-config :deep(.el-card__header) {
-  padding: 8px 10px;
+  padding: var(--bf-space-2) var(--bf-space-3);
+  background: var(--bf-bg-tertiary);
+  border-bottom: 1px solid var(--bf-border);
 }
+
 .compact-form :deep(.el-form-item) {
-    margin-bottom: 12px;
+    margin-bottom: var(--bf-space-2);
+}
+
+/* ============================================
+   Port Selection Button
+   ============================================ */
+.port-btn {
+  font-family: var(--bf-font-sans);
+  transition: all var(--bf-transition-base);
+  border-color: var(--bf-border);
+  background: var(--bf-bg-tertiary);
+  color: var(--bf-text-primary);
+}
+
+.port-btn:not(:disabled):hover {
+  border-color: var(--bf-accent-cyan);
+  color: var(--bf-accent-cyan);
+  transform: translateY(-1px);
+}
+
+.port-btn .icon-check {
+  color: var(--bf-accent-green);
+  margin-right: 4px;
+}
+
+.port-btn .icon-link {
+  margin-right: 4px;
+}
+
+/* ============================================
+   Connect/Disconnect Button
+   ============================================ */
+.btn-connect,
+.btn-disconnect {
+  width: 100%;
+  height: 44px;
+  font-size: var(--bf-font-base);
+  font-weight: var(--bf-font-semibold);
+  letter-spacing: 0.5px;
+  border: none;
+  position: relative;
+  overflow: hidden;
+  transition: all var(--bf-transition-base);
+}
+
+.btn-connect {
+  background: linear-gradient(135deg, var(--bf-accent-green), #2EA043);
+  color: white;
+}
+
+.btn-connect:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 16px rgba(63, 185, 80, 0.35);
+}
+
+.btn-connect:active:not(:disabled) {
+  transform: translateY(0);
+}
+
+.btn-disconnect {
+  background: linear-gradient(135deg, var(--bf-accent-red), #B62324);
+  color: white;
+}
+
+.btn-disconnect:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 16px rgba(248, 81, 73, 0.35);
+}
+
+.btn-disconnect:active:not(:disabled) {
+  transform: translateY(0);
+}
+
+/* Shimmer effect */
+.btn-connect::after,
+.btn-disconnect::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+  transition: left 0.5s ease;
+}
+
+.btn-connect:hover::after,
+.btn-disconnect:hover::after {
+  left: 100%;
+}
+
+.btn-icon {
+  margin-right: 6px;
+  font-size: 16px;
+}
+
+/* ============================================
+   Select Styling
+   ============================================ */
+.bf-select {
+  width: 100%;
+}
+
+.bf-select :deep(.el-input__wrapper) {
+  background: var(--bf-bg-tertiary);
+  box-shadow: 0 0 0 1px var(--bf-border) inset;
+  transition: all var(--bf-transition-base);
+}
+
+.bf-select :deep(.el-input__wrapper:hover) {
+  box-shadow: 0 0 0 1px var(--bf-border-active) inset;
+}
+
+.bf-select :deep(.el-input.is-focus .el-input__wrapper) {
+  box-shadow: 0 0 0 1px var(--bf-accent-cyan) inset, 0 0 0 3px var(--bf-accent-cyan-light) !important;
+}
+
+.bf-select :deep(.el-input__inner) {
+  color: var(--bf-text-primary);
 }
 </style>
